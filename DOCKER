@@ -27,13 +27,27 @@
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
         state: present
 
-    - name: Install Docker
-      apt:
-        name: docker-ce
-        state: present
+  - name: Update apt cache
+    apt:
+      update_cache: yes
 
-    - name: Ensure Docker service is started and enabled
-      service:
-        name: docker
-        state: started
-        enabled: yes
+  - name: Install Docker
+    apt:
+      name: docker-ce
+      state: present
+
+  - name: Ensure Docker service is started and enabled
+    service:
+      name: docker
+      state: started
+      enabled: yes
+
+  - name: Add docker group to current user
+    ansible.builtin.group:
+      name: sempaynado-docker
+      state: present
+
+  - name: Copy Docker file
+    copy:
+      src: /home/wsempaynado/HOA11_empaynado/dockerfile
+      dest: /home/sempaynado/Docker
