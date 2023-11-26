@@ -1,17 +1,18 @@
-# Use an official Ubuntu runtime as a parent image
-FROM ubuntu:latest
+FROM ubuntu
 
-# Install necessary packages (Nginx and MySQL)
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y nginx mysql-server && \
-    rm -rf /var/lib/apt/lists/*
+MAINTAINER Argente <qbnpargente@tip.edu.ph>
 
-# Expose ports for Nginx and MySQL
-EXPOSE 80 3306
+# Skip prompts
+ARG DEBIAN_FRONTEND=noninteractive
 
-# Copy configuration files (you may need to customize these)
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY my.cnf /etc/mysql/my.cnf
+# Update Packages
+RUN apt update; apt upgrade -y
 
-# Start services
-CMD service mysql start && nginx -g "daemon off;"
+# Install Apache (Web)
+RUN apt install apache2 -y; apt install apache2-utils -y
+
+# Install DB server
+RUN apt install mariadb-server -y
+
+# Set Entrypoint
+ENTRYPOINT apache2ctl -D FOREGROUND: mysql -D FOREGROUND
