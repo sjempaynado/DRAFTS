@@ -1,0 +1,18 @@
+- name: Install required packages
+  apt:
+    name:
+      - keystone
+    state: present
+
+- name: Configure Keystone
+  lineinfile:
+    path: /etc/keystone/keystone.conf
+    regexp: '^#*connection'
+    line: 'connection = sqlite:////var/lib/keystone/keystone.db'
+  notify: Restart Keystone
+
+- name: Populate Keystone Database
+  command: keystone-manage db_sync
+  args:
+    creates: /var/lib/keystone/keystone.db
+  notify: Restart Keystone
