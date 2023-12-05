@@ -5,14 +5,18 @@
     state: present
 
 - name: Configure Keystone
-  lineinfile:
-    path: /etc/keystone/keystone.conf
-    regexp: '^#*connection'
-    line: 'connection = sqlite:////var/lib/keystone/keystone.db'
-  notify: Restart Keystone
-
-- name: Populate Keystone Database
   command: keystone-manage db_sync
   args:
-    creates: /var/lib/keystone/keystone.db
-  notify: Restart Keystone
+    chdir: /etc/keystone
+  become_user: keystone
+
+- name: Initialize Fernet key
+  command: keystone-manage fernet_setup
+  become_user: keystone
+
+ - name: Start Keystone service
+   systemd:
+     name: "keystone"
+     state: started
+     enabled: yes
+
